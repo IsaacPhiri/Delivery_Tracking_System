@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
       password = db.Column(db.String(80), nullable=False)
 
 class SignupForm(FlaskForm):
-      username = StringField(validators=[InputRequired{}, Length(
+      username = StringField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Username"})
       
       password = PasswordField(validators=[InputRequired(), Length(
@@ -46,7 +46,7 @@ class SignupForm(FlaskForm):
                         "That username alread exists. Plaese choose a different one.")
 
 class LoginForm(FlaskForm):
-      username = StringField(validators=[InputRequired{}, Length(
+      username = StringField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Username"})
       
       password = PasswordField(validators=[InputRequired(), Length(
