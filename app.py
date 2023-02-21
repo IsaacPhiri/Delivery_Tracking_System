@@ -92,5 +92,5 @@ def signup():
 
         return render_template('signup.html', form=form)
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     app.run(port=5000, debug=True)
