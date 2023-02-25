@@ -7,7 +7,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, log
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
-from flask_bcrpyt import Bcrypt
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 db = SQLAlchemy(app)
@@ -56,7 +56,9 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+	with app.context():
+		db.create_all()
+	return render_template('index.html')
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
