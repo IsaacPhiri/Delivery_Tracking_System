@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """app """
 
 from flask import Flask, render_template, url_for, redirect
@@ -10,10 +10,11 @@ from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///delitrack.db'
 app.config['SECRET_KEY'] = 'VJKHBHVFKHFKVJBH'
+db = SQLAlchemy(app)
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,43 +57,44 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def index():
-	with app.context():
-		db.create_all()
-	return render_template('index.html')
+    #with app.app_context():
+    #    db.create_all()
+    return render_template('index.html')
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-      return render_template('dashboard.html')
+    return render_template('dashboard.html')
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
-      logout_user()
-      return redirect(url_for('login'))
+    logout_user()
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-        form = LoginForm()
-        if form.validate_on_submit():
-              user = User.query.filter_by(username=form.username.data).first()
-              if user:
-                    if bcrypt.check_password_hash(user.password, form.password.data):
-                          login_user(user)
-                          return redirect(url_for('dashboard'))
-        return render_template('login.html', form=form)
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user)
+                return redirect(url_for('dashboard'))
+    return render_template('login.html', form=form)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-        form = SignupForm()
+    form = SignupForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        new_user = User(username=form.username.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
 
-        if form.validate_on_submit():
-              hashed_password = bcrypt.generat_password_hash(form.password.data)
-              new_user = User(username=form.username.data, password=hashed_password)
-              db.session.add(new_user)
-              db.session.commit()
-              return redirect(url_for('login'))
-
-        return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form)
 
 if __name__ == '__main__':
+    app.app_context().push()
+    db.create_all()
     app.run(port=5000, debug=True)
