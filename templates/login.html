@@ -1,20 +1,22 @@
-<!DOCTYPE html>
-<html>
-        <head>
-                <title>Delivery Tracking System Login</title>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body>
-                <h2>Login</h2>
-		<form method="POST" action="">
-			{{ form.hidden_tag() }}
-			{{ form.username }}
-			{{ form.password }}
-			{{ form.submit }}
-		</form>
-                <br>
-                <a href="{{url_for('signup')}}">Don't have an account? Sign Up</a><br>
-        </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}SmartTrack Login{% endblock %}
+
+{% block content %}
+<div id="signup-form">
+    <h2>Login</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.username }}<br><br>
+        {{ form.password }}<br><br>
+        {{ form.submit }}
+    </form>
+    <br>
+    <br>
+    <a href="{{url_for('signup')}}">Don't have an account? Click Here to Sign Up</a>
+</div>
+{% endblock %}
+
+{% block signup %}
+<a class="nav-link" href="{{url_for('signup')}}">Sign-Up</a>
+{% endblock %}

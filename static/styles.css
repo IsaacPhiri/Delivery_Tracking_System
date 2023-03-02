@@ -1,0 +1,14 @@
+#signup-form {
+    position: absolute;
+    top: 150px;
+    left: 550px;
+    right: 600px;
+    box-sizing: inherit;
+    padding: 2rem;
+    border-radius: 1rem;
+    background-color: hsl(50%, 20%, 100%);
+    border: 1px solid hsl(0, 0%, 90%);
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+}

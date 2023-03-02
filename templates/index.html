@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Document</title>
-</head>
-<body>
-    <h1>Home Page</h1>
-    <a href="{{url_for('login')}}">Login Page</a><br>
-    <a href="{{url_for('signup')}}">Sign-Up Page</a><br>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}SmartTrack Home{% endblock %}
+
+{% block content %}
+<h2>Welcome to SmartTrack - A Delivery Tracking System Web Application!</h2>
+{% endblock %}
+
+{% block login %}
+<a class="nav-link" href="{{url_for('login')}}">Login</a>
+{% endblock %}
+
+{% block signup %}
+<a class="nav-link" href="{{url_for('signup')}}">Sign-Up</a>
+{% endblock %}
