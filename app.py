@@ -99,7 +99,7 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-#Program starts here
+#Program starts here #
 if __name__ == '__main__':
     app.app_context().push()
     db.create_all()
