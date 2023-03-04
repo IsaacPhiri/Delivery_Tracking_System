@@ -1,6 +1,7 @@
 .main_container {
    display: grid;
    place-items: center;
+   min-height: 100vh;
 }
 
 .sign_in_cont {

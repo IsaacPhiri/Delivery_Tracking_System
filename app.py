@@ -82,6 +82,12 @@ def index():
     #    db.create_all()
     return render_template('index.html')
 
+@app.route('/forgot_password')
+def forgot_password():
+    #with app.app_context():
+    #    db.create_all()
+    return render_template('fgp.html')
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     return render_template('dashboard.html')
