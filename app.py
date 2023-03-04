@@ -1,3 +1,4 @@
+import email
 from flask import Flask, render_template, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
@@ -23,9 +24,10 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
       id = db.Column(db.Integer, primary_key=True)
-      username = db.Column(db.String(20), nullable=False, unique=True)
-      username = db.Column(db.String(20), nullable=False, unique=True)
+      username = db.Column(db.String(20), nullable=True, unique=True)
+      lastname = db.Column(db.String(20), nullable=True, unique=True)
       firstname = db.Column(db.String(20), nullable=True)
+      email = db.Column(db.String(40), nullable=True, unique=True)
       password = db.Column(db.String(80), nullable=False)
 
 class SignupForm(FlaskForm):
@@ -38,6 +40,9 @@ class SignupForm(FlaskForm):
       lastname = StringField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Lastname"})
 
+      email = StringField(validators=[InputRequired(), Length(
+            min=4, max=40)], render_kw={"placeholder": "Email"})
+
       password = PasswordField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Password"})
 
@@ -49,11 +54,22 @@ class SignupForm(FlaskForm):
 
             if existing_user_username:
                   raise ValidationError(
-                        "That username alread exists. Plaese choose a different one.")
+                        "That username already exists. Plaese choose a different one.")
+
+      def validate_email(self, email):
+            existing_user_email = User.query.filter_by(
+                  email=email.data).first()
+
+            if existing_user_email:
+                  raise ValidationError(
+                        "That email already exists. Plaese choose a different one.")
 
 class LoginForm(FlaskForm):
-      username = StringField(validators=[InputRequired(), Length(
-            min=4, max=20)], render_kw={"placeholder": "Username"})
+      #username = StringField(validators=[InputRequired(), Length(
+      #      min=4, max=20)], render_kw={"placeholder": "Username"})
+
+      email = StringField(validators=[InputRequired(), Length(
+            min=15, max=40)], render_kw={"placeholder": "Email"})
 
       password = PasswordField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Password"})
@@ -80,7 +96,7 @@ def logout():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
@@ -92,7 +108,7 @@ def signup():
     form = SignupForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, password=hashed_password)
+        new_user = User(email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
