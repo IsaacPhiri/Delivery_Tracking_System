@@ -30,6 +30,11 @@ input {
 
 }
 
+.forgot_p {
+   color: var(--primary);
+   font-style: italic;
+}
+
 .input {
    border: 1px solid rgba(0, 0, 0, 0.2);
 }
