@@ -1,13 +1,12 @@
-
 .main_container {
-   height: 100vh;
-   width: 100%;
    display: grid;
    place-items: center;
 }
+
 .sign_in_cont {
    margin-top: 2rem;
 }
+
 form {
    display: flex;
    flex-direction: column;
@@ -15,10 +14,14 @@ form {
    width: 400px;
    padding: 2rem;
    box-shadow: 2px 7px 15px -1px rgba(0, 0, 0, 0.5);
+   margin: 4rem auto 1rem;
+
 }
+
 .sign-up-form {
    padding: 1rem 2rem;
 }
+
 input {
    outline: none;
    padding: 10px;
@@ -26,9 +29,11 @@ input {
    border-radius: 5px;
 
 }
+
 .input {
    border: 1px solid rgba(0, 0, 0, 0.2);
 }
+
 .password-cont {
    width: 100%;
    display: flex;
@@ -39,22 +44,33 @@ input {
    padding-right: 5px;
    border-radius: 5px;
 }
-.password-cont > input {
+
+.password-cont>input {
    width: 100%;
 }
+
 input[type=button] {
    background: var(--primary);
    color: var(--white);
    cursor: pointer;
 }
+
 .classsss {
    color: rgba(0, 0, 0, 0.4);
    cursor: pointer;
 }
+
 .form_text {
    text-align: center;
 }
-.form_text > a {
+
+.form_text>a {
    text-decoration: none;
    color: var(--primary);
+}
+
+@media (max-width : 600px) {
+   form {
+      width: 85%;
+   }
 }
