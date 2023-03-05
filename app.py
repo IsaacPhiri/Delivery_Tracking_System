@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, flash, current_app
+from flask import Flask, render_template, url_for, redirect, flash, current_app, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -10,17 +10,18 @@ from itsdangerous import URLSafeTimedSerializer as Serializer
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///delitrack.db'
 app.config['SECRET_KEY'] = 'VJKHBHVFKHFKVJBH'
 db = SQLAlchemy(app)
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'isaacphiri315@gmail.com'
-app.config['MAIL_PASSWORD'] = '@2june1964'
-app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
 
-mail = Mail(app)
+#app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+#app.config['MAIL_PORT'] = 587
+#app.config['MAIL_USE_TLS'] = True
+#app.config['MAIL_USERNAME'] = 'Isaac Phiri'
+#app.config['MAIL_PASSWORD'] = '@2june1964'
+#app.config['MAIL_DEFAULT_SENDER'] = 'isaacphiri315@gmail.com'
+#mail = Mail(app)
 
 
 login_manager = LoginManager()
@@ -39,10 +40,10 @@ class User(db.Model, UserMixin):
       email = db.Column(db.String(40), nullable=True, unique=True)
       password = db.Column(db.String(80), nullable=False)
 
-      def get_reset_password_token(self, expires_in=600):
-        """Generates a password reset token for the user."""
-        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expires_in)
-        return s.dumps({'user_id': self.id}).decode('utf-8')
+     # def get_reset_password_token(self, expires_in=600):
+     #   """Generates a password reset token for the user."""
+     #   s = Serializer(current_app.config['SECRET_KEY'], expires_in=expires_in)
+     #   return s.dumps({'user_id': self.id}).decode('utf-8')
 
      # @staticmethod
      # def verify_reset_password_token(token):
@@ -69,6 +70,9 @@ class SignupForm(FlaskForm):
 
       password = PasswordField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Password"})
+
+      confirm_password = PasswordField(validators=[InputRequired(), Length(
+            min=4, max=20)], render_kw={"placeholder": "Confirm Password"})
 
       submit = SubmitField("SignUp")
 
@@ -101,10 +105,10 @@ class ForgotMyPassword(FlaskForm):
                 "There is no account associated with that email.")
 
         # generate a password reset token
-        token = user.get_reset_password_token()
+        #token = user.get_reset_password_token()
 
         # send a password reset email to the user
-        send_password_reset_email(user, token)
+        #send_password_reset_email(user, token)
 
         # inform the user that a password reset email has been sent
         flash('An email has been sent with instructions to reset your password.', 'info')
@@ -122,15 +126,15 @@ class LoginForm(FlaskForm):
 
       submit = SubmitField("Login")
 
-def send_password_reset_email(user, token):
-    msg = Message('Password Reset Request',
-                  recipients=[user.email])
-    msg.body = f'''To reset your password, visit the following link:
-{url_for('reset_password', token=token, _external=True)}
+#def send_password_reset_email(user, token):
+#    msg = Message('Password Reset Request',
+#                  recipients=[user.email])
+#    msg.body = f'''To reset your password, visit the following link:
+#{url_for('reset_password', token=token, _external=True)}
 
-If you did not make this request then simply ignore this email and no changes will be made.
-'''
-    mail.send(msg)
+#If you did not make this request then simply ignore this email and no changes will be made.
+#'''
+#    mail.send(msg)
 
 @app.route('/')
 def index():
@@ -142,19 +146,19 @@ def index():
 def forgot_password():
     form = ForgotMyPassword()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        #user = User.query.filter_by(email=form.email.data).first()
 
-        if user:
-            # generate a password reset token
-            token = user.get_reset_password_token()
+        #if user:
+        #    # generate a password reset token
+        #    token = user.get_reset_password_token()
 
-            # send a password reset email to the user
-            send_password_reset_email(user, token)
+        #    # send a password reset email to the user
+        #    send_password_reset_email(user, token)
 
-            # inform the user that a password reset email has been sent
-            flash('An email has been sent with instructions to reset your password.', 'info')
+        #    # inform the user that a password reset email has been sent
+        #    flash('An email has been sent with instructions to reset your password.', 'info')
         
-        # always redirect to the homepage after a password reset request
+        ## always redirect to the homepage after a password reset request
         return redirect(url_for('index'))
 
     return render_template('fgp.html', form=form)
@@ -184,11 +188,18 @@ def login():
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(email=form.email.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('login'))
+        password_one = (form.password.data)
+        password_two = (form.confirm_password.data)
+        if password_one != password_two:
+            error_message = "Passwords don't match."
+            return jsonify({'error': error_message})
+        else:
+            hashed_password = bcrypt.generate_password_hash(password_one)
+            new_user = User(email=form.email.data, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('login'))
+            #return redirect(url_for('login'))
 
     return render_template('signup.html', form=form)
 

@@ -10,3 +10,20 @@ togglePassword.addEventListener("click", function () {
   /* toggle the icon */
   this.classList.toggle("bi-eye");
 });
+
+$(document).ready(function () {
+    $('#signup-form').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/signup',
+            method: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.error) {
+                    alert(response.error);
+                }
+            }
+        });
+    });
+});
