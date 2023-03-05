@@ -34,8 +34,8 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
       id = db.Column(db.Integer, primary_key=True)
-      username = db.Column(db.String(20), nullable=True, unique=True)
-      lastname = db.Column(db.String(20), nullable=True, unique=True)
+      username = db.Column(db.String(20), nullable=True)
+      lastname = db.Column(db.String(20), nullable=True)
       firstname = db.Column(db.String(20), nullable=True)
       email = db.Column(db.String(40), nullable=True, unique=True)
       password = db.Column(db.String(80), nullable=False)
@@ -215,7 +215,9 @@ def signup():
             new_user = User(email=form.email.data, password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
-            return redirect(url_for('login'))
+            success_message = "Account created successfully."
+            return jsonify({'success': success_message})
+            #return redirect(url_for('login'))
     return render_template('signup.html', form=form)
 
 #Program starts here   

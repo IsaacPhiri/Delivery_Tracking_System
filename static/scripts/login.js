@@ -22,6 +22,9 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.error) {
                     alert(response.error);
+                } else (response.success) {
+                    alert(response.success);
+                    window.location.href = '/login';
                 }
             }
         });

@@ -46,7 +46,7 @@
     <br>
     <br>
     <div class="main_container sign_in_cont">
-        <form method="POST" action="{{ url_for('signup') }}" class="sign-up-form">
+        <form id="signup-form" method="POST" action="{{ url_for('signup') }}" class="sign-up-form">
             {{ form.hidden_tag() }}
 
             {{ form.username.label }} {{ form.username(class="input username") }}
