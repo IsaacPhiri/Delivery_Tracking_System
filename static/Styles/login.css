@@ -70,9 +70,15 @@ input[type=button] {
    text-align: center;
 }
 
-.form_text>a {
-   text-decoration: none;
-   color: var(--primary);
+.errors, .errors > li, .error-message {
+    list-style: none;
+    color: red;
+    font-size: 12px;
+}
+
+.form_text > a {
+    text-decoration: none;
+    color: var(--primary);
 }
 
 @media (max-width : 600px) {
