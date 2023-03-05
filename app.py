@@ -5,13 +5,13 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
-from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer as Serializer
+import re
+#from flask_mail import Mail, Message
+#from itsdangerous import URLSafeTimedSerializer as Serializer
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///delitrack.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'VJKHBHVFKHFKVJBH'
 db = SQLAlchemy(app)
 
@@ -55,6 +55,23 @@ class User(db.Model, UserMixin):
      #       return None
      #   return User.query.get(data['user_id'])
 
+class PasswordValidator:
+    def __init__(self, message=None):
+        if not message:
+            message = 'Password must have at least 6 characters, 1 capital letter, 1 number, and 1 special character'
+        self.message = message
+
+    def __call__(self, form, field):
+        password = field.data
+        if len(password) < 6:
+            raise ValidationError(self.message)
+        if not re.search("[A-Z]", password):
+            raise ValidationError(self.message)
+        if not re.search("[0-9]", password):
+            raise ValidationError(self.message)
+        if not re.search("[@#$%^&+=]", password):
+            raise ValidationError(self.message)
+
 class SignupForm(FlaskForm):
       username = StringField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -69,10 +86,10 @@ class SignupForm(FlaskForm):
             min=4, max=40)], render_kw={"placeholder": "Email"})
 
       password = PasswordField(validators=[InputRequired(), Length(
-            min=4, max=20)], render_kw={"placeholder": "Password"})
+            min=6, max=20), PasswordValidator()], render_kw={"placeholder": "Password"})
 
       confirm_password = PasswordField(validators=[InputRequired(), Length(
-            min=4, max=20)], render_kw={"placeholder": "Confirm Password"})
+            min=6, max=20), PasswordValidator()], render_kw={"placeholder": "Confirm Password"})
 
       submit = SubmitField("SignUp")
 
@@ -199,8 +216,6 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('login'))
-            #return redirect(url_for('login'))
-
     return render_template('signup.html', form=form)
 
 #Program starts here   

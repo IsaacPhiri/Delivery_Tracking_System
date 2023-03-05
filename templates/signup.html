@@ -46,7 +46,7 @@
     <br>
     <br>
     <div class="main_container sign_in_cont">
-        <form method="POST" action="{{ url_for('signup') }}" class="sign-up-form" id="signup-form">
+        <form method="POST" action="{{ url_for('signup') }}" class="sign-up-form">
             {{ form.hidden_tag() }}
 
             {{ form.username.label }} {{ form.username(class="input username") }}
@@ -68,6 +68,7 @@
             {% for error in form.email.errors %}
             <span class="error-message">{{ error }}</span>
             {% endfor %}
+
             {{ form.password.label }}
             <div class="password-cont">
                 {{ form.password(class="form-control", id="password") }}
@@ -76,12 +77,19 @@
             {% for error in form.password.errors %}
             <span class="error-message">{{ error }}</span>
             {% endfor %}
+
             {{ form.confirm_password.label }}
             <div class="password-cont">
                 {{ form.confirm_password(class="form-control", id="password") }}
                 <i class="bi bi-eye-slash classsss" id="togglePassword"></i>
             </div>
+            {% for error in form.confirm_password.errors %}
+            <span class="error-message">{{ error }}</span>
+            {% endfor %}
+
+
             {{ form.submit(class="btn btn-primary btn-local-solid") }}
+
             <p class="form_text">Already have an account? <a href="{{url_for('login')}}">Log in</a></p>
         </form>
 
