@@ -1,17 +1,26 @@
-import email
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, flash, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer as Serializer
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///delitrack.db'
 app.config['SECRET_KEY'] = 'VJKHBHVFKHFKVJBH'
 db = SQLAlchemy(app)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'isaacphiri315@gmail.com'
+app.config['MAIL_PASSWORD'] = '@2june1964'
+app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+
+mail = Mail(app)
 
 
 login_manager = LoginManager()
@@ -29,6 +38,21 @@ class User(db.Model, UserMixin):
       firstname = db.Column(db.String(20), nullable=True)
       email = db.Column(db.String(40), nullable=True, unique=True)
       password = db.Column(db.String(80), nullable=False)
+
+      def get_reset_password_token(self, expires_in=600):
+        """Generates a password reset token for the user."""
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expires_in)
+        return s.dumps({'user_id': self.id}).decode('utf-8')
+
+     # @staticmethod
+     # def verify_reset_password_token(token):
+     #   """Verifies a password reset token and returns the user if valid."""
+     #   s = Serializer(current_app.config['SECRET_KEY'])
+     #   try:
+     #       data = s.loads(token.encode('utf-8'))
+     #   except:
+     #       return None
+     #   return User.query.get(data['user_id'])
 
 class SignupForm(FlaskForm):
       username = StringField(validators=[InputRequired(), Length(
@@ -65,18 +89,26 @@ class SignupForm(FlaskForm):
                         "That email already exists. Plaese choose a different one.")
 
 class ForgotMyPassword(FlaskForm):
-      email = StringField(validators=[InputRequired(), Length(
-            min=4, max=40)], render_kw={"placeholder": "Email"})
+    email = StringField(validators=[InputRequired(), Length(
+        min=4, max=40)], render_kw={"placeholder": "Email"})
+    submit = SubmitField("Reset Password")
 
-      submit = SubmitField("Forgot Password")
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
 
-      def validate_email(self, email):
-            existing_user_email = User.query.filter_by(
-                  email=email.data).first()
+        if not user:
+            raise ValidationError(
+                "There is no account associated with that email.")
 
-            if existing_user_email:
-                  raise ValidationError(
-                        "That email already exists. Plaese choose a different one.")
+        # generate a password reset token
+        token = user.get_reset_password_token()
+
+        # send a password reset email to the user
+        send_password_reset_email(user, token)
+
+        # inform the user that a password reset email has been sent
+        flash('An email has been sent with instructions to reset your password.', 'info')
+
 
 class LoginForm(FlaskForm):
       #username = StringField(validators=[InputRequired(), Length(
@@ -90,6 +122,16 @@ class LoginForm(FlaskForm):
 
       submit = SubmitField("Login")
 
+def send_password_reset_email(user, token):
+    msg = Message('Password Reset Request',
+                  recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('reset_password', token=token, _external=True)}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
 @app.route('/')
 def index():
     #with app.app_context():
@@ -100,10 +142,21 @@ def index():
 def forgot_password():
     form = ForgotMyPassword()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(email=form.email.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if user:
+            # generate a password reset token
+            token = user.get_reset_password_token()
+
+            # send a password reset email to the user
+            send_password_reset_email(user, token)
+
+            # inform the user that a password reset email has been sent
+            flash('An email has been sent with instructions to reset your password.', 'info')
+        
+        # always redirect to the homepage after a password reset request
+        return redirect(url_for('index'))
+
     return render_template('fgp.html', form=form)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
