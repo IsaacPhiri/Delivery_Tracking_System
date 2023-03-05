@@ -38,7 +38,7 @@ class User(db.Model, UserMixin):
       lastname = db.Column(db.String(20), nullable=True)
       firstname = db.Column(db.String(20), nullable=True)
       email = db.Column(db.String(40), nullable=True, unique=True)
-      password = db.Column(db.String(80), nullable=False)
+      password = db.Column(db.String(80), nullable=True)
 
      # def get_reset_password_token(self, expires_in=600):
      #   """Generates a password reset token for the user."""
@@ -72,6 +72,7 @@ class PasswordValidator:
         if not re.search("[@#$%^&+=]", password):
             raise ValidationError(self.message)
 
+
 class SignupForm(FlaskForm):
       username = StringField(validators=[InputRequired(), Length(
             min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -89,7 +90,7 @@ class SignupForm(FlaskForm):
             min=6, max=20), PasswordValidator()], render_kw={"placeholder": "Password"})
 
       confirm_password = PasswordField(validators=[InputRequired(), Length(
-            min=6, max=20), PasswordValidator()], render_kw={"placeholder": "Confirm Password"})
+            min=6, max=20)], render_kw={"placeholder": "Confirm Password"})
 
       submit = SubmitField("SignUp")
 
