@@ -64,6 +64,20 @@ class SignupForm(FlaskForm):
                   raise ValidationError(
                         "That email already exists. Plaese choose a different one.")
 
+class ForgotMyPassword(FlaskForm):
+      email = StringField(validators=[InputRequired(), Length(
+            min=4, max=40)], render_kw={"placeholder": "Email"})
+
+      submit = SubmitField("Forgot Password")
+
+      def validate_email(self, email):
+            existing_user_email = User.query.filter_by(
+                  email=email.data).first()
+
+            if existing_user_email:
+                  raise ValidationError(
+                        "That email already exists. Plaese choose a different one.")
+
 class LoginForm(FlaskForm):
       #username = StringField(validators=[InputRequired(), Length(
       #      min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -82,11 +96,15 @@ def index():
     #    db.create_all()
     return render_template('index.html')
 
-@app.route('/forgot_password')
+@app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
-    #with app.app_context():
-    #    db.create_all()
-    return render_template('fgp.html')
+    form = ForgotMyPassword()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        new_user = User(email=form.email.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+    return render_template('fgp.html', form=form)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
