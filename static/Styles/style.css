@@ -7,15 +7,13 @@
 
 :root {
     --primary: #7f64ea;
+    --lightBlue: #d8deff;
     --white: #ffff;
     --pink: #ff9085;
     --orange: #f9893f;
     --grey: #f8f9fa;
-    --black: #00000;
-    --boxShadow: 2px 7px 15px -1px rgba(0, 0, 0, 0.5);
-    --boxShadowLight: 2px 7px 15px -1px rgba(0, 0, 0, 0.2);
+    --boxShadow: 2px 4px 10px 4px rgba(0, 0, 0, 0.07);
 }
-
 section {
    max-width: 1440px;
    margin: 0 auto;
